@@ -20,7 +20,7 @@ class IssueSerializer(ModelSerializer):
 
     class Meta:
         model = Issue
-        fields = ['title', 'description', 'priority', 'nature', 'status', 'projet', 'created_time', 'comments']
+        fields = ['id', 'title', 'description', 'priority', 'nature', 'status', 'projet', 'created_time', 'comments']
 
 
 class ProjetSerializer(ModelSerializer):
