@@ -1,10 +1,10 @@
 Endpoints (GET):
-    api/projets/
-    api/projets/<projet.id>
-    api/issues/
-    api/issues/<issue.id>
-    api/comments/
-    api/comments/<comment.id>
+    1) api/projets/
+    2) api/projets/<projet.id>
+    3) api/issues/
+    4) api/issues/<issue.id>
+    5) api/comments/
+    6) api/comments/<comment.id>
 
 Endpoints (POST):
     api/projets/
