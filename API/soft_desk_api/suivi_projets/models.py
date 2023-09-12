@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.db import models
 from uuid import uuid4
+from authentication.models import User
 
 class Projet(models.Model):
     TYPE_CHOICES = [
@@ -13,6 +15,7 @@ class Projet(models.Model):
     description = models.fields.TextField(blank=False)
     type = models.fields.CharField(max_length=20, choices=TYPE_CHOICES, default="BACK-END")
     created_time = models.fields.DateTimeField(auto_now_add=True)
+    contributors = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Contributor')
 
 
 class Issue(models.Model):
@@ -42,7 +45,20 @@ class Issue(models.Model):
     projet = models.ForeignKey('Projet', on_delete=models.CASCADE, related_name="issues")
     created_time = models.fields.DateTimeField(auto_now_add=True)
 
+
 class Comment(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     description = models.fields.TextField(blank=False)
     issue = models.ForeignKey('Issue', on_delete=models.CASCADE, related_name="comments")
+
+
+class Contributor(models.Model):
+    ROLE = [
+        ('AUTHOR', 'Author'),
+        ('CONTRIBUTOR', 'Contributor'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    projet = models.ForeignKey(Projet, on_delete=models.CASCADE)
+    role = models.fields.CharField(max_length=20, choices=ROLE, default="Contributor")
+

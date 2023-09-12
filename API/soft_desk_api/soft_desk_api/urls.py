@@ -19,14 +19,16 @@ from django.urls import path, include
 from rest_framework import routers
 
 from suivi_projets.views import *
+from authentication.views import *
 
 router = routers.SimpleRouter()
+router.register('users', UserViewset, basename='users')
 router.register('projets', ProjetViewset, basename='projets')
 router.register('issues', IssueViewset, basename='issues')
 router.register('comments', CommentViewset, basename='comments')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api-auth/', include('rest_framework.urls')),
+    path('api/', include('rest_framework.urls')),
     path('api/', include(router.urls)),
 ]
