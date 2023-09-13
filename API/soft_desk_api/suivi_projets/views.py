@@ -1,16 +1,15 @@
 from django.shortcuts import render
-from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.viewsets import ModelViewSet
 from suivi_projets.models import Projet, Issue, Comment, Contributor
 from authentication.models import User
 from suivi_projets.serializers import IssueListSerializer, IssueDetailSerializer, ProjetListSerializer, ProjetDetailSerializer, CommentSerializer
-from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from rest_framework.exceptions import ValidationError
+from suivi_projets.permissions import IsProjetAuthorOrContributor, IsIssueAuthorOrContributor, IsCommentAuthorOrContributor
 
 
 class MultipleSerializerMixin:
@@ -23,29 +22,19 @@ class MultipleSerializerMixin:
         return super().get_serializer_class()
 
 
-class ProjetViewset(MultipleSerializerMixin, ReadOnlyModelViewSet):
+class ProjetViewset(MultipleSerializerMixin, ModelViewSet):
     serializer_class = ProjetListSerializer
     detail_serializer_class = ProjetDetailSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsProjetAuthorOrContributor]
         
     def get_queryset(self):
         queryset = Projet.objects.all()
         return queryset
     
-    @transaction.atomic
-    @action(detail=False, methods=['post'])
-    def creer_projet(self, request):
-        serializer = ProjetListSerializer(data=request.data)
-        if serializer.is_valid():
-            projet = serializer.save()
-
-            user = User.objects.get(pk=request.user.id)
-            contributor = Contributor(user=user, projet=projet, role='AUTHOR')
-            contributor.save()
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+    def perform_create(self, serializer):
+        projet = serializer.save(author=self.request.user)
+        contributor = Contributor(user=self.request.user, projet=projet, role='AUTHOR')
+        contributor.save()
 
     @transaction.atomic
     @action(detail=True, methods=['post'])
@@ -61,30 +50,43 @@ class ProjetViewset(MultipleSerializerMixin, ReadOnlyModelViewSet):
         return Response({"message": "You was added as contributor"}, status=status.HTTP_201_CREATED)
 
 
-class IssueViewset(MultipleSerializerMixin, ReadOnlyModelViewSet):
+
+class IssueViewset(MultipleSerializerMixin, ModelViewSet):
     serializer_class = IssueListSerializer
     detail_serializer_class = IssueDetailSerializer
+    permission_classes = [IsIssueAuthorOrContributor]
         
     def get_queryset(self):
-        queryset = Issue.objects.all()
-        projet_id = self.request.GET.get('projet_id')
-        if projet_id is not None:
-            queryset = queryset.filter(projet_id=projet_id)
+        # queryset = Issue.objects.all()
+        user_projets = Projet.objects.filter(contributors=self.request.user)
+        queryset = Issue.objects.filter(projet__in=user_projets)
 
         return queryset
+    
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
 
     
-class CommentViewset(ReadOnlyModelViewSet):
+class CommentViewset(ModelViewSet):
     serializer_class = CommentSerializer
+    permission_classes = [IsCommentAuthorOrContributor]
         
     def get_queryset(self):
         queryset = Comment.objects.all()
-        projet_id = self.request.GET.get('projet_id')
-        if projet_id is not None:
-            queryset = queryset.filter(issue__projet_id=projet_id)
+        user_projets = Projet.objects.filter(contributors=self.request.user)
+        user_issues = Issue.objects.filter(projet__in=user_projets)
+        queryset = Comment.objects.filter(issue__in=user_issues)
+
+        # projet_id = self.request.GET.get('projet_id')
+        # if projet_id is not None:
+        #     queryset = queryset.filter(issue__projet_id=projet_id)
         
-        issue_id = self.request.GET.get('issue_id')
-        if issue_id is not None:
-            queryset = queryset.filter(issue_id=issue_id)
+        # issue_id = self.request.GET.get('issue_id')
+        # if issue_id is not None:
+        #     queryset = queryset.filter(issue_id=issue_id)
 
         return queryset
+    
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)

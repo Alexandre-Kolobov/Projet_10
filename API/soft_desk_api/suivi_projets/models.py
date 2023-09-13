@@ -11,6 +11,7 @@ class Projet(models.Model):
         ('ANDROID', 'Android'),
     ]
 
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="projet_author", blank=True, null=True)
     title = models.fields.CharField(max_length=150)
     description = models.fields.TextField(blank=False)
     type = models.fields.CharField(max_length=20, choices=TYPE_CHOICES, default="BACK-END")
@@ -36,7 +37,7 @@ class Issue(models.Model):
         ('IN PROGRESS', 'In Progress'),
         ('FINISHED', 'Finished'),
     ]
-        
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="issue_author")
     title = models.fields.CharField(max_length=150)
     description = models.fields.TextField(blank=False)
     priority = models.fields.CharField(max_length=20, choices=PRIORITY_CHOICES, default="LOW")
@@ -48,6 +49,7 @@ class Issue(models.Model):
 
 class Comment(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comment_author")
     description = models.fields.TextField(blank=False)
     issue = models.ForeignKey('Issue', on_delete=models.CASCADE, related_name="comments")
 
