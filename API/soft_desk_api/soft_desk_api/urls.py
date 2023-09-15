@@ -18,8 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 
-from suivi_projets.views import *
-from authentication.views import *
+from suivi_projets.views import ProjetViewset, IssueViewset, CommentViewset
+from authentication.views import UserViewset
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 router = routers.SimpleRouter()

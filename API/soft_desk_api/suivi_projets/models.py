@@ -3,6 +3,7 @@ from django.db import models
 from uuid import uuid4
 from authentication.models import User
 
+
 class Projet(models.Model):
     TYPE_CHOICES = [
         ('BACK-END', 'back-end'),
@@ -45,6 +46,7 @@ class Issue(models.Model):
     status = models.fields.CharField(max_length=20, choices=STATUS_CHOICES, default="TO DO")
     projet = models.ForeignKey('Projet', on_delete=models.CASCADE, related_name="issues")
     created_time = models.fields.DateTimeField(auto_now_add=True)
+    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='assigned_issues')
 
 
 class Comment(models.Model):
@@ -63,4 +65,3 @@ class Contributor(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     projet = models.ForeignKey(Projet, on_delete=models.CASCADE)
     role = models.fields.CharField(max_length=20, choices=ROLE, default="Contributor")
-
