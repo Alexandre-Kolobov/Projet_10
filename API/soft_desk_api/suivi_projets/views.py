@@ -78,13 +78,6 @@ class CommentViewset(ModelViewSet):
         user_issues = Issue.objects.filter(projet__in=user_projets)
         queryset = Comment.objects.filter(issue__in=user_issues)
 
-        # projet_id = self.request.GET.get('projet_id')
-        # if projet_id is not None:
-        #     queryset = queryset.filter(issue__projet_id=projet_id)
-        
-        # issue_id = self.request.GET.get('issue_id')
-        # if issue_id is not None:
-        #     queryset = queryset.filter(issue_id=issue_id)
 
         return queryset
     
