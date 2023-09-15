@@ -1,0 +1,11 @@
+[flake8]
+max-line-length = 120
+exclude =
+    .git,
+    docs,
+    .venv,
+	flake8-report
+	API/soft_desk_api/authentication/migrations
+	API/soft_desk_api/authentication/tests.py
+	API/soft_desk_api/suivi_projets/migrations
+	API/soft_desk_api/suivi_projets/tests.py
