@@ -16,4 +16,7 @@ class IsUser(BasePermission):
 
             return bool(request.user and request.user.is_authenticated and user_id == request.user.id)
 
+        if view.action == "create":
+            return True
+
         return bool(request.user and request.user.is_authenticated)

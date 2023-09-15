@@ -9,7 +9,7 @@ class CommentSerializer(ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['uuid', 'author', 'description', 'projet_id', 'issue']
+        fields = ['uuid', 'projet_id', 'issue', 'author', 'description']
 
     def get_projet_id(self, instance):
         return instance.issue.projet.id
@@ -17,24 +17,29 @@ class CommentSerializer(ModelSerializer):
 
 class IssueListSerializer(ModelSerializer):
     author = CharField(read_only="True")
+    
 
     class Meta:
         model = Issue
         fields = [
             'id',
+            'projet',
             'author',
             'title',
             'description',
             'priority',
             'nature',
             'status',
-            'projet',
             'created_time',
             'assigned_to'
             ]
 
     def validate_assigned_to(self, value):
-        projet_id = self.instance.projet.id
+        if self.instance:
+            projet_id = self.instance.projet.id
+        else:
+            projet_id = self.initial_data.get("projet")
+
         user_id = value
         if Contributor.objects.filter(user=user_id, projet=projet_id).exists():
             return value
@@ -45,19 +50,20 @@ class IssueListSerializer(ModelSerializer):
 class IssueDetailSerializer(ModelSerializer):
 
     author = CharField(read_only="True")
+    
     comments = CommentSerializer(many=True, required=False)
 
     class Meta:
         model = Issue
         fields = [
             'id',
+            'projet',
             'author',
             'title',
             'description',
             'priority',
             'nature',
             'status',
-            'projet',
             'created_time',
             'assigned_to',
             'comments'
@@ -69,7 +75,7 @@ class ProjetListSerializer(ModelSerializer):
 
     class Meta:
         model = Projet
-        fields = ['id', 'author', 'title', 'description', 'type', 'created_time']
+        fields = ['id', 'author', 'type', 'title', 'description', 'created_time']
 
 
 class ProjetDetailSerializer(ModelSerializer):
@@ -78,4 +84,4 @@ class ProjetDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Projet
-        fields = ['id', 'author', 'title', 'description', 'type', 'created_time', 'issues', 'contributors']
+        fields = ['id', 'author','type', 'title', 'description', 'created_time', 'contributors', 'issues']

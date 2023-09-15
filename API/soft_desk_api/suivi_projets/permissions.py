@@ -1,5 +1,5 @@
 from rest_framework.permissions import BasePermission
-from suivi_projets.models import Contributor, Issue, Comment
+from suivi_projets.models import Contributor, Issue, Comment, Projet
 
 
 class IsProjetAuthorOrContributor(BasePermission):
@@ -14,6 +14,12 @@ class IsProjetAuthorOrContributor(BasePermission):
             user = request.user
 
             try:
+                projet = Projet.objects.get(pk=project_id)
+            except Projet.DoesNotExist:
+                self.message = "Projet with this id doesn't exist"
+                return False
+
+            try:
                 contributor = user.projet_set.filter(id=project_id).exists()
             except user.DoesNotExist:
                 return False
@@ -22,6 +28,12 @@ class IsProjetAuthorOrContributor(BasePermission):
         if view.action == "update" or view.action == "partial_update" or view.action == "destroy":
             self.message = "You have to be the author to update or delete this project"
             project_id = view.kwargs.get('pk')
+
+            try:
+                projet = Projet.objects.get(pk=project_id)
+            except Projet.DoesNotExist:
+                self.message = "Projet with this id doesn't exist"
+                return False
 
             try:
                 contributor = Contributor.objects.get(user=request.user, projet=project_id)
@@ -48,6 +60,7 @@ class IsIssueAuthorOrContributor(BasePermission):
             try:
                 issue = Issue.objects.get(pk=issue_id)
             except Issue.DoesNotExist:
+                self.message = "Issue with this id doesn't exist"
                 return False
 
             try:
@@ -60,6 +73,13 @@ class IsIssueAuthorOrContributor(BasePermission):
         if view.action == "update" or view.action == "partial_update" or view.action == "destroy":
             self.message = "You have to be the author to update or delete this issue"
             issue_id = view.kwargs.get('pk')
+
+            try:
+                issue = Issue.objects.get(pk=issue_id)
+            except Issue.DoesNotExist:
+                self.message = "Issue with this id doesn't exist"
+                return False
+
             author = Issue.objects.get(pk=issue_id).author
             return bool(request.user and request.user.is_authenticated and request.user.id == author.id)
 
@@ -81,6 +101,7 @@ class IsCommentAuthorOrContributor(BasePermission):
             try:
                 comment = Comment.objects.get(pk=comment_id)
             except Comment.DoesNotExist:
+                self.message = "Comment with this id doesn't exist"
                 return False
 
             try:
@@ -93,6 +114,13 @@ class IsCommentAuthorOrContributor(BasePermission):
         if view.action == "update" or view.action == "partial_update" or view.action == "destroy":
             self.message = "You have to be the author to update or delete this comment"
             comment_id = view.kwargs.get('pk')
+
+            try:
+                comment = Comment.objects.get(pk=comment_id)
+            except Comment.DoesNotExist:
+                self.message = "Comment with this id doesn't exist"
+                return False
+
             author = Comment.objects.get(pk=comment_id).author
             return bool(request.user and request.user.is_authenticated and request.user.id == author.id)
 
