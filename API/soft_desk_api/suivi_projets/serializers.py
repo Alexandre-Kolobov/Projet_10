@@ -17,7 +17,6 @@ class CommentSerializer(ModelSerializer):
 
 class IssueListSerializer(ModelSerializer):
     author = CharField(read_only="True")
-    
 
     class Meta:
         model = Issue
@@ -50,7 +49,7 @@ class IssueListSerializer(ModelSerializer):
 class IssueDetailSerializer(ModelSerializer):
 
     author = CharField(read_only="True")
-    
+
     comments = CommentSerializer(many=True, required=False)
 
     class Meta:
@@ -84,4 +83,4 @@ class ProjetDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Projet
-        fields = ['id', 'author','type', 'title', 'description', 'created_time', 'contributors', 'issues']
+        fields = ['id', 'author', 'type', 'title', 'description', 'created_time', 'contributors', 'issues']

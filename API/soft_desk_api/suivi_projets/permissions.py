@@ -14,7 +14,7 @@ class IsProjetAuthorOrContributor(BasePermission):
             user = request.user
 
             try:
-                projet = Projet.objects.get(pk=project_id)
+                Projet.objects.get(pk=project_id)
             except Projet.DoesNotExist:
                 self.message = "Projet with this id doesn't exist"
                 return False
@@ -30,7 +30,7 @@ class IsProjetAuthorOrContributor(BasePermission):
             project_id = view.kwargs.get('pk')
 
             try:
-                projet = Projet.objects.get(pk=project_id)
+                Projet.objects.get(pk=project_id)
             except Projet.DoesNotExist:
                 self.message = "Projet with this id doesn't exist"
                 return False
