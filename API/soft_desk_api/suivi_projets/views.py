@@ -68,6 +68,23 @@ class IssueViewset(MultipleSerializerMixin, ModelViewSet):
         user_projets = Projet.objects.filter(contributors=self.request.user)
         queryset = Issue.objects.filter(projet__in=user_projets)
 
+        projet_id = self.request.GET.get("projet_id")
+        nature = self.request.GET.get("nature")
+        status = self.request.GET.get("status")
+        priority = self.request.GET.get("priority")
+
+        if projet_id is not None:
+            queryset = queryset.filter(projet=projet_id)
+
+        if nature is not None:
+            queryset = queryset.filter(nature=nature)
+
+        if status is not None:
+            queryset = queryset.filter(status=status)
+
+        if priority is not None:
+            queryset = queryset.filter(priority=priority)
+
         return queryset
 
     def perform_create(self, serializer):

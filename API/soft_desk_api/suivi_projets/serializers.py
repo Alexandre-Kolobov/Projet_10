@@ -14,6 +14,17 @@ class CommentSerializer(ModelSerializer):
     def get_projet_id(self, instance):
         return instance.issue.projet.id
 
+    def validate_issue(self, value):
+        user_id = self.context['request'].user.id
+
+        projet_id = value.projet
+        if Contributor.objects.filter(user=user_id, projet=projet_id).exists():
+            return value
+        else:
+            raise ValidationError(
+                'You have to assigne Comment to the Issue only if you are a contributor of the project'
+                )
+
 
 class IssueListSerializer(ModelSerializer):
     author = CharField(read_only="True")
@@ -44,6 +55,17 @@ class IssueListSerializer(ModelSerializer):
             return value
         else:
             raise ValidationError('You have to assigne User to the Issue only if he is a contributor of this project')
+
+    def validate_projet(self, value):
+        user_id = self.context['request'].user.id
+
+        projet_id = value
+        if Contributor.objects.filter(user=user_id, projet=projet_id).exists():
+            return value
+        else:
+            raise ValidationError(
+                'You have to assigne Issue to the Project only if you are a contributor of this project'
+                )
 
 
 class IssueDetailSerializer(ModelSerializer):

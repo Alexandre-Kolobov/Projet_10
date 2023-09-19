@@ -28,3 +28,13 @@ Additional:
     If you need to remove all data from database please put in the commande line "python manage.py flush"
 
 
+Users pour demo:
+
+	Login: Alex
+	Mdp: Test
+	
+	Login: Claire
+	Mdp: Test
+	
+	Login: Raphaël
+	Mdp: Test
